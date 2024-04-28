@@ -2,9 +2,10 @@
 function AdminPanel() {
 
     return (
-            <div>
-                <p>AdminPanel</p>
-            </div>
+        <div className="main_content">
+            <h1>Panel administracyjny</h1>
+
+        </div>
     )
 }
 
