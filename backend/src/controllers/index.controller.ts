@@ -1,4 +1,4 @@
-import { Response, Router } from "express";
+import { Response, Request, Router } from "express";
 
 import Controller from "interfaces/controller.interface";
 
@@ -10,7 +10,7 @@ export default class IndexController implements Controller {
         this.initializeRoutes();
     }
 
-    public handleIndex(response: Response) {
+    public handleIndex(request: Request, response: Response) {
         response.send("Hello it's WaterScreenAPI home page");
     }
 

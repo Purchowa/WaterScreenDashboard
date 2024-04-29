@@ -10,6 +10,5 @@ class WaterScreenController implements Controller {
     }
 
     private initializeRoutes() {
-
     }
 }
