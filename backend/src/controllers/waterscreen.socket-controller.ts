@@ -1,18 +1,27 @@
 import { Server, Socket } from 'socket.io'
 
-import { WaterScreenStateModel, getMockState } from '../models/WaterScreenStateModel';
+import SocketController from 'interfaces/socket-controller.interface';
+import WaterscreenStateService from '../modules/services/waterscreenState.service';
 
-export default class WaterScreenSocketController {
+export default class WaterScreenSocketController implements SocketController {
+    private stateService = new WaterscreenStateService;
 
-    constructor(private io: Server) { }
-
-    public initializeRoutes() {
-        this.io.on("connection", this.handleSocketConnection);
-        this.io.on("connection_error", (err) => console.error(err));
+    public initializeEvents(io: Server) {
+        io.on("connection", (socket: Socket) => {
+            socket.on("getState", () => {
+                this.stateService.getLatestState()
+                    .then((state) => {
+                        if (state)
+                            socket.emit('state', state);
+                        else
+                            socket.disconnect();
+                    })
+                    .catch((error) => {
+                        console.error("Error getting latest state\n", error);
+                        socket.disconnect(true);
+                    });
+            });
+        });
+        io.on("connection_error", (err) => console.error(err));
     }
-
-    private handleSocketConnection(socket: Socket) {
-        socket.on("getState", () => { socket.emit('state', getMockState()); });
-    }
-
 }
