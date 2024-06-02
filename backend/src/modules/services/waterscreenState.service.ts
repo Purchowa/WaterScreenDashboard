@@ -1,8 +1,8 @@
-import { WaterscreenStateModel } from "../models/waterscreenState.model";
+import { WaterscreenStateModelType } from "../models/waterscreenState.model";
 import { StateModel } from "../schemas/waterscreenState.schema";
 
 export default class WaterscreenStateService {
-    public getLatestState = async (): Promise<WaterscreenStateModel | undefined> => {
+    public getLatestState = async (): Promise<WaterscreenStateModelType | undefined> => {
 
         const data = await StateModel.findOne({}).sort('-date');
 
@@ -13,7 +13,7 @@ export default class WaterscreenStateService {
             return undefined;
     }
 
-    public addState = async (state: WaterscreenStateModel) => {
+    public addState = async (state: WaterscreenStateModelType) => {
         return StateModel.create(state);
     }
 }

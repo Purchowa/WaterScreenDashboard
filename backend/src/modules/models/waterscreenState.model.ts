@@ -1,5 +1,5 @@
 
-enum ModeVariant {
+export enum ModeVariant {
     Standard,
     Demo,
     Service,
@@ -12,7 +12,7 @@ enum FluidLevel {
     SIZE
 }
 
-export type WaterscreenStateModel = {
+export type WaterscreenStateModelType = {
     mode: ModeVariant,
     fluidLevel: FluidLevel
     isPresenting: boolean,
@@ -20,7 +20,7 @@ export type WaterscreenStateModel = {
 };
 
 
-export function getMockState(): WaterscreenStateModel {
+export function getMockState(): WaterscreenStateModelType {
     const mode: ModeVariant = Math.floor(Math.random() * ModeVariant.SIZE);
     const fluidLevel: FluidLevel = Math.floor(Math.random() * FluidLevel.SIZE);
     const isPresenting: boolean = Boolean(Math.floor(Math.random() + 0.5));
