@@ -6,4 +6,5 @@ export type ConfigModelType = {
     workTime?: number,
     idleTime?: number,
     mailList?: string[]
+    picture?: { data: number[], size: number }
 }

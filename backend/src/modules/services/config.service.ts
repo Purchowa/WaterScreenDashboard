@@ -3,13 +3,13 @@ import { ConfigModel } from "../schemas/config.schema";
 
 export default class ConfigService {
     public getAllConfig = async (): Promise<ConfigModelType | undefined> => {
-        const data = await ConfigModel.findOne({});
-        return data ? { mode: data.mode, enableWeekends: data.enableWeekends, workTime: data.workTime, idleTime: data.idleTime, mailList: data.mailList } : undefined;
+        const data = await ConfigModel.findOne({}).select('-_id -__v -picture');
+        return data ? data : undefined;
     }
 
     public getWaterscreenConfig = async (): Promise<ConfigModelType | undefined> => {
-        const data = await ConfigModel.findOne({});
-        return data ? { mode: data.mode, enableWeekends: data.enableWeekends, workTime: data.workTime, idleTime: data.idleTime } : undefined;
+        const data = await ConfigModel.findOne({}).select('-_id -__v -mailList -picture._id');
+        return data ? data : undefined;
     }
 
     public updateConfig = async (config: ConfigModelType) => {
