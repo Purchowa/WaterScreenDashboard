@@ -1,4 +1,7 @@
 import express, { Response, Request } from 'express';
+import basicAuth from 'express-basic-auth';
+
+import { config } from '../config';
 
 import Controller from "interfaces/controller.interface";
 import WaterscreenStateService from '../modules/services/waterscreenState.service';
@@ -10,14 +13,16 @@ export default class WaterScreenController implements Controller {
     public router = express();
     private stateService = new WaterscreenStateService();
     private configService = new ConfigService();
+    private protected = basicAuth({ users: { [config.WATERSCREEN_USER]: config.WATERSCREEN_PASS } }); // TODO: make credentials mandatory
 
     constructor() {
         this.initializeRoutes();
     }
 
     private initializeRoutes() {
-        this.router.get(`${this.path}/config`, this.getConfig);
-        this.router.post(`${this.path}/state`, this.postState);
+
+        this.router.get(`${this.path}/config`, this.protected, this.getConfig);
+        this.router.post(`${this.path}/state`, this.protected, this.postState);
     }
 
     private getConfig = (request: Request, response: Response) => {
