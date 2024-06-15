@@ -13,6 +13,6 @@ export default class ConfigService {
     }
 
     public updateConfig = async (config: ConfigModelType) => {
-        return ConfigModel.replaceOne({}, config).setOptions({ upsert: true });
+        return ConfigModel.replaceOne({}, config).setOptions({ upsert: true, runValidators: true });
     }
 }

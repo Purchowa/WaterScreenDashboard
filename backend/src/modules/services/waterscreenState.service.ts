@@ -14,6 +14,6 @@ export default class WaterscreenStateService {
     }
 
     public addState = async (state: WaterscreenStateModelType) => {
-        return StateModel.create(state);
+        return StateModel.create([state], { validateBeforeSave: true });
     }
 }

@@ -6,7 +6,7 @@ export enum ModeVariant {
     SIZE
 };
 
-enum FluidLevel {
+export enum FluidLevel {
     Optimal,
     Low,
     SIZE
