@@ -6,4 +6,5 @@ export const config = {
     MONGO_DB_URI: process.env.MONGO_DB_URI || "",
     WATERSCREEN_USER: process.env.WATERSCREEN_USER || "",
     WATERSCREEN_PASS: process.env.WATERSCREEN_PASS || "",
+    JWT_SECRET: process.env.JWT_SECRET || "",
 };
