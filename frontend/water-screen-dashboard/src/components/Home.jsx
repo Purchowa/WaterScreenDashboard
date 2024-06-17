@@ -5,7 +5,7 @@ function Home() {
   return (
       <div className="main_content">
           <h1>Strona konfiguracyjna Ekranu Wodnego!</h1>
-          <h5>Ekran Wodny znaoduje się w holu budynku C (Instytut Politechniczny)</h5>
+          <h5>Ekran Wodny znajduje się w holu budynku C (Instytut Politechniczny)</h5>
           <p>Ekran wyświetla animacje graficzne, oraz informjuje o aktualnej godzinie i pogodzie</p>
 
           <h5>Autorzy modernizacji sytemu:</h5>
