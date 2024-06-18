@@ -23,13 +23,13 @@ export const authJwt = (request: Request, response: Response, next: NextFunction
         try {
             jwt.verify(token, config.JWT_SECRET, (err, decoded) => {
                 if (err)
-                    return response.status(400).send({ error: "invalid token" });
+                    return response.status(401).send({ error: "invalid token" });
                 else
                     next();
             })
         }
         catch (exception) {
-            return response.status(400).send({ error: `error authorizing: ${exception}` });
+            return response.status(401).send({ error: `error authorizing: ${exception}` });
         }
 
     }

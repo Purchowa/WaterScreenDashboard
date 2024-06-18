@@ -31,10 +31,9 @@ export default class DashboardController implements Controller {
 
     private updateConfig = (request: Request, response: Response) => {
         const data: ConfigModelType = request.body;
-
         this.configService.updateConfig(data)
             .then((updCfg) => response.status(200).json(updCfg))
-            .catch((error: Error.ValidationError) => { response.status(400).json(error) })
+            .catch((error: Error.ValidationError) => { response.status(400).json(error); })
             .catch((error) => { console.error(error); response.status(500).json({ error: "Internal error" }) });
     }
 

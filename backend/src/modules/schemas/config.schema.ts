@@ -1,10 +1,10 @@
 import { Schema, model } from "mongoose";
-import { ConfigModelType } from "modules/models/config.model";
+import { ConfigModelType, PictureDataType } from "modules/models/config.model";
 
 import { ModeVariant } from "../models/waterscreenState.model";
 
 function isTimeRequired(this: ConfigModelType) {
-    return this.mode == ModeVariant.Standard;
+    return this.mode === ModeVariant.Standard;
 }
 
 const ConfigSchema = new Schema<ConfigModelType>({
@@ -20,12 +20,12 @@ const ConfigSchema = new Schema<ConfigModelType>({
     },
     workTime: {
         type: Number,
-        min: 0,
+        min: 1,
         required: isTimeRequired
     },
     idleTime: {
         type: Number,
-        min: 0,
+        min: 1,
         required: isTimeRequired
     },
     mailList: {
@@ -41,16 +41,22 @@ const ConfigSchema = new Schema<ConfigModelType>({
     },
     picture: {
         type: {
-            data: {
-                type: Array<Number>,
-                required: true
-            },
             size: {
                 type: Number,
                 min: 0,
                 max: 64,
                 required: true
-            }
+            },
+            data: {
+                type: Array<Number>,
+                validate: {
+                    validator: function (this: any, data: number[]) {
+                        return data.length === this.get('size');
+                    },
+                    message: () => "Picutre size doesn't match the data array length!",
+                },
+                required: true
+            },
         },
         required: false
     }

@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { io } from 'socket.io-client';
+import { isExpired } from 'react-jwt'
+
 import '../styles/App.css';
 
 function AdminPanel() {
     const [config, setConfig] = useState({
         mode: 0,
         enableWeekends: false,
-        workTime: 0,
-        idleTime: 0,
+        workTime: 1,
+        idleTime: 1,
         mailList: []
     });
     const [picture, setPicture] = useState({ data: "", size: 0 });
@@ -19,16 +21,28 @@ function AdminPanel() {
     });
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loginData, setLoginData] = useState({
-        username: "at_admin",
-        password: "hF7Ya8yEPLXdzGMv4swC9Ue6fb3m5c"
+        username: "",
+        password: ""
     });
+
+    const [intervalID, setIntervalID] = useState();
+    const [errorText, setErrorText] = useState("");
 
     useEffect(() => {
         const token = localStorage.getItem('jwt');
-        if (token) {
+        let clearSocketConnection = undefined;
+        if (token && !isExpired(token)) {
             setIsAuthenticated(true);
             fetchConfig(token);
-            setupSocket(token);
+            clearSocketConnection = setupSocket();
+        }
+        return () => {
+            if (intervalID) {
+                clearInterval(intervalID);
+            }
+            if (clearSocketConnection) {
+                clearSocketConnection();
+            }
         }
     }, []);
 
@@ -47,16 +61,13 @@ function AdminPanel() {
             });
     };
 
-    const setupSocket = (token) => {
-        const socket = io('http://127.0.0.1:3100', {
-            extraHeaders: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+    const setupSocket = () => {
+        const socket = io('http://127.0.0.1:3100');
 
         socket.on('connect', () => {
             console.log('Connected to socket server');
-            socket.emit('getState');
+
+            setIntervalID(setInterval(() => { socket.emit('getState'); }, 500));
         });
 
         socket.on('state', (recState) => {
@@ -99,7 +110,6 @@ function AdminPanel() {
             .then(response => {
                 const token = response.data.token;
                 localStorage.setItem('jwt', token);
-                console.log(token)
                 setIsAuthenticated(true);
                 fetchConfig(token);
                 setupSocket(token);
@@ -117,13 +127,10 @@ function AdminPanel() {
         e.preventDefault();
         const token = localStorage.getItem('jwt');
         const pictureDataArray = picture.data.split(',').map(num => parseInt(num.trim(), 10));
-        const updatedConfig = {
-            ...config,
-            picture: {
-                data: pictureDataArray,
-                size: picture.size
-            }
-        };
+
+        const updatedConfig = picture.data !== "" ? { ...config, picture: { data: pictureDataArray, size: picture.size } } : config;
+
+        console.log(updatedConfig);
         axios.post('http://127.0.0.1:3100/dashboard/config', updatedConfig, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -131,11 +138,20 @@ function AdminPanel() {
         })
             .then(response => {
                 console.log('Config updated successfully', response.data);
+                setErrorText("");
             })
             .catch(error => {
                 console.error("There was an error updating the config!", error);
+                const unauthorizedStatus = 401;
+                if (error.response.status === unauthorizedStatus)
+                    setIsAuthenticated(false);
+                else
+                    setErrorText(error.response.data.message);
             });
     };
+
+    const modeNames = ["Standard", "Demo", "Service"];
+    const fluidLevelNames = ["Optimal", "Low"];
 
     if (!isAuthenticated) {
         return (
@@ -176,9 +192,9 @@ function AdminPanel() {
         <div className="admin_content">
             <button onClick={handleLogout} style={{backgroundColor: "#f44336", padding: "10px 20px", border: "none", borderRadius: "5px"}}>Logout</button>
             <h2>Current State</h2>
-            <p>Fluid Level: {state.fluidLevel}</p>
-            <p>Is running: {state.isPresenting ? 'Yes' : 'No'}</p>
-            <p>Mode: {state.mode}</p>
+            <p>Fluid Level: <span style={{ fontWeight: 'bold', color: state.fluidLevel == 0 ? "green" : "red" }}>{fluidLevelNames[state.fluidLevel]}</span></p>
+            <p>Is running: <span style={{ fontWeight: 'bold' }}>{state.isPresenting ? 'Yes' : 'No'}</span></p>
+            <p>Mode: <span style={{ fontWeight: 'bold' }}>{modeNames[state.mode]}</span></p>
             <p></p>
             <h2>Config</h2>
             <form onSubmit={handleSubmit}>
@@ -216,7 +232,7 @@ function AdminPanel() {
                             type="number"
                             name="workTime"
                             value={config.workTime}
-                            min="0"
+                            min={1}
                             onChange={handleChange}
                             className="form-input"
                         />
@@ -229,7 +245,7 @@ function AdminPanel() {
                             type="number"
                             name="idleTime"
                             value={config.idleTime}
-                            min="0"
+                            min={1}
                             onChange={handleChange}
                             className="form-input"
                         />
@@ -273,6 +289,9 @@ function AdminPanel() {
                 </div>
                 <button type="submit" className="submit-button">Submit</button>
             </form>
+            <div>
+                <p style={{ color: 'red' }}>{errorText}</p>
+            </div>
         </div>
     );
 }
