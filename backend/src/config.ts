@@ -7,4 +7,8 @@ export const config = {
     WATERSCREEN_USER: process.env.WATERSCREEN_USER || "",
     WATERSCREEN_PASS: process.env.WATERSCREEN_PASS || "",
     JWT_SECRET: process.env.JWT_SECRET || "",
+    GMAIL_SECRET: {
+        login: process.env.GMAIL_LOGIN || "",
+        passw: process.env.GMAIL_PASSW || ""
+    },
 };

@@ -9,6 +9,8 @@ import WaterscreenStateService from '../modules/services/waterscreenState.servic
 import ConfigService from '../modules/services/config.service';
 import { WaterscreenStateModelType } from 'modules/models/waterscreenState.model';
 
+import { handleLowWaterMailNotification } from '../middlewares/mail.middleware'; 
+
 
 export default class WaterScreenController implements Controller {
     public path = '/waterscreen';
@@ -24,7 +26,7 @@ export default class WaterScreenController implements Controller {
     private initializeRoutes() {
 
         this.router.get(`${this.path}/config`, this.protected, this.getConfig);
-        this.router.post(`${this.path}/state`, this.protected, this.postState);
+        this.router.post(`${this.path}/state`, this.protected, handleLowWaterMailNotification, this.postState);
     }
 
     private getConfig = (request: Request, response: Response) => {
