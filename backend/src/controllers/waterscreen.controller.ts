@@ -24,7 +24,6 @@ export default class WaterScreenController implements Controller {
     }
 
     private initializeRoutes() {
-
         this.router.get(`${this.path}/config`, this.protected, this.getConfig);
         this.router.post(`${this.path}/state`, this.protected, handleLowWaterMailNotification, this.postState);
     }

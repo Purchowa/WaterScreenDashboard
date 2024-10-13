@@ -3,6 +3,7 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import { isExpired } from 'react-jwt'
 
+import appConfig from '../config.js'
 import '../styles/App.css';
 
 function AdminPanel() {
@@ -47,7 +48,7 @@ function AdminPanel() {
     }, []);
 
     const fetchConfig = (token) => {
-        axios.get('http://127.0.0.1:3100/dashboard/config', {
+        axios.get(`${appConfig.restURI}/config`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -62,7 +63,7 @@ function AdminPanel() {
     };
 
     const setupSocket = () => {
-        const socket = io('http://127.0.0.1:3100');
+        const socket = io(appConfig.restURI);
 
         socket.on('connect', () => {
             console.log('Connected to socket server');
@@ -106,7 +107,7 @@ function AdminPanel() {
 
     const handleLogin = (e) => {
         e.preventDefault();
-        axios.post('http://127.0.0.1:3100/dashboard/login', loginData)
+        axios.post(`${appConfig.restURI}/dashboard/login`, loginData)
             .then(response => {
                 const token = response.data.token;
                 localStorage.setItem('jwt', token);
@@ -131,7 +132,7 @@ function AdminPanel() {
         const updatedConfig = picture.data !== "" ? { ...config, picture: { data: pictureDataArray, size: picture.size } } : config;
 
         console.log(updatedConfig);
-        axios.post('http://127.0.0.1:3100/dashboard/config', updatedConfig, {
+        axios.post(`${appConfig.restURI}/dashboard/config`, updatedConfig, {
             headers: {
                 Authorization: `Bearer ${token}`
             }

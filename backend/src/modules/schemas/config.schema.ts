@@ -8,6 +8,10 @@ function isTimeRequired(this: ConfigModelType) {
 }
 
 const ConfigSchema = new Schema<ConfigModelType>({
+    wasRead: {
+        type: Boolean,
+        required: true
+    },
     mode: {
         type: Number,
         min: 0,
