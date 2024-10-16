@@ -19,6 +19,7 @@ export default class App {
         this.app = express();
         this.httpServer = http.createServer(this.app);
         this.io = new Server(this.httpServer, {
+            path: `${config.API_ROOT_URI}/socket.io/`,
             cors: {
                 origin: config.CORS_ORIGIN,
                 methods: ['GET', 'POST'],
@@ -50,7 +51,7 @@ export default class App {
     }
 
     private initializeControllers(controllers: Controller[]) {
-        controllers.forEach((controller) => this.app.use(config.API_ROOT_URI, controller.router));
+        controllers.forEach((controller) => this.app.use(`${config.API_ROOT_URI}/`, controller.router));
     }
 
     private initializeSockets(socketControllers: SocketController[]) {

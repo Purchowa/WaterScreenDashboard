@@ -3,7 +3,7 @@ import { ConfigModel } from "../schemas/config.schema";
 
 export default class ConfigService {
     public getAllConfig = async (): Promise<ConfigModelType | undefined> => {
-        const config = await ConfigModel.findOne({}).select('-_id -__v -picture');
+        const config = await ConfigModel.findOne({}).select('-_id -__v -picture -wasRead');
         return config ? config : undefined;
     }
 

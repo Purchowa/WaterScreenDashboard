@@ -48,7 +48,7 @@ function AdminPanel() {
     }, []);
 
     const fetchConfig = (token) => {
-        axios.get(`${appConfig.restURI}/dashboard/config`, {
+        axios.get(`${appConfig.host}/${appConfig.restURI}/dashboard/config`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -63,12 +63,14 @@ function AdminPanel() {
     };
 
     const setupSocket = () => {
-        const socket = io(appConfig.restURI);
+        const socket = io(appConfig.host, {
+            path: `/${appConfig.restURI}/socket.io/`
+        });
 
         socket.on('connect', () => {
             console.log('Connected to socket server');
 
-            setIntervalID(setInterval(() => { socket.emit('getState'); }, 500));
+            setIntervalID(setInterval(() => { socket.emit('getState'); }, appConfig.gettingStateIntervalTime_ms));
         });
 
         socket.on('state', (recState) => {
@@ -107,7 +109,7 @@ function AdminPanel() {
 
     const handleLogin = (e) => {
         e.preventDefault();
-        axios.post(`${appConfig.restURI}/dashboard/login`, loginData)
+        axios.post(`${appConfig.host}/${appConfig.restURI}/dashboard/login`, loginData)
             .then(response => {
                 const token = response.data.token;
                 localStorage.setItem('jwt', token);
@@ -132,7 +134,7 @@ function AdminPanel() {
         const updatedConfig = picture.data !== "" ? { ...config, picture: { data: pictureDataArray, size: picture.size } } : config;
 
         console.log(updatedConfig);
-        axios.post(`${appConfig.restURI}/dashboard/config`, updatedConfig, {
+        axios.post(`${appConfig.host}/${appConfig.restURI}/dashboard/config`, updatedConfig, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
