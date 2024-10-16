@@ -48,7 +48,7 @@ function AdminPanel() {
     }, []);
 
     const fetchConfig = (token) => {
-        axios.get(`${appConfig.restURI}/config`, {
+        axios.get(`${appConfig.restURI}/dashboard/config`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }

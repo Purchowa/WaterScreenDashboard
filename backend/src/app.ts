@@ -20,7 +20,7 @@ export default class App {
         this.httpServer = http.createServer(this.app);
         this.io = new Server(this.httpServer, {
             cors: {
-                origin: 'http://localhost:5173',
+                origin: config.CORS_ORIGIN,
                 methods: ['GET', 'POST'],
             },
         });
@@ -39,7 +39,7 @@ export default class App {
 
     private initializeMiddleware() {
         const corsOptions = {
-            origin: 'http://localhost:5173',
+            origin: config.CORS_ORIGIN,
             methods: ['GET', 'POST', 'PUT', 'DELETE'],
             optionsSuccessStatus: 200
         };
@@ -50,7 +50,7 @@ export default class App {
     }
 
     private initializeControllers(controllers: Controller[]) {
-        controllers.forEach((controller) => this.app.use('/', controller.router));
+        controllers.forEach((controller) => this.app.use(config.API_ROOT_URI, controller.router));
     }
 
     private initializeSockets(socketControllers: SocketController[]) {
