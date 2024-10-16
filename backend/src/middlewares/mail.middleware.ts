@@ -26,12 +26,12 @@ function setupMailContent(mailList: string[], content: string): Mail.Options {
     return {
         from: config.GMAIL_SECRET.login,
         to: mailList,
-        subject: "Waterscreen - low water state",
+        subject: "AT - ekran wodny",
         html: content
     };
 }
 
-function sendMail(mailList: string[], htmlContent: string, next: NextFunction) {
+function sendMail(mailList: string[], htmlContent: string) {
     const transporter = setupMailTransporter();
     const mailOptions = setupMailContent(mailList, htmlContent);
 
@@ -41,14 +41,13 @@ function sendMail(mailList: string[], htmlContent: string, next: NextFunction) {
         else {
             console.log("Email successfully send\n", info.response);
         }
-        next();
     });
 }
 
-function sendMailWithHtmlContent(path: string, mailList: string[], next: NextFunction, sendMail: (mailList: string[], htmlContent: string, next: NextFunction) => void) {
+function sendMailWithHtmlContent(path: string, mailList: string[], sendMail: (mailList: string[], htmlContent: string) => void) {
     fs.readFile(path, 'utf8', (error, htmlContent) => {
         if (!error) {
-            sendMail(mailList, htmlContent, next);
+            sendMail(mailList, htmlContent);
         }
         else
             console.error(error);
@@ -67,11 +66,13 @@ export function handleLowWaterMailNotification(request: Request, response: Respo
                     configService.getAllConfig()
                         .then((waterscreenCfg) => {
                             if (waterscreenCfg && waterscreenCfg.mailList) {
-                                sendMailWithHtmlContent('src/assets/email_template.html', waterscreenCfg.mailList, next, sendMail);
+                                sendMailWithHtmlContent('src/assets/email_template.html', waterscreenCfg.mailList, sendMail);
                             }
                         })
                         .catch((error) => { console.error(error); });
                 }
+                next();
+
             })
             .catch((error) => { console.error(error); });
     }
