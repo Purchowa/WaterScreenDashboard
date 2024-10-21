@@ -9,12 +9,11 @@ export default class ConfigService {
 
     public getWaterscreenConfig = async (): Promise<ConfigModelType | undefined> => {
         const config = await ConfigModel.findOne({}).select('-_id -__v -mailList -picture._id');
-
         if (!config)
             return undefined;
 
         if (!config.wasRead) {
-            await ConfigModel.updateOne({}, { ...config.toObject(), wasRead: true }).setOptions({ runValidators: true });
+            await ConfigModel.updateOne({}, { ...config.toObject(), wasRead: true });
         }
 
         return config;

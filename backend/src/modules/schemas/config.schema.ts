@@ -3,9 +3,6 @@ import { ConfigModelType, PictureDataType } from "modules/models/config.model";
 
 import { ModeVariant } from "../models/waterscreenState.model";
 
-function isTimeRequired(this: ConfigModelType) {
-    return this.mode === ModeVariant.Standard;
-}
 
 const ConfigSchema = new Schema<ConfigModelType>({
     wasRead: {
@@ -25,12 +22,12 @@ const ConfigSchema = new Schema<ConfigModelType>({
     workTime: {
         type: Number,
         min: 1,
-        required: isTimeRequired
+        required: true
     },
     idleTime: {
         type: Number,
         min: 1,
-        required: isTimeRequired
+        required: true
     },
     mailList: {
         type: Array<String>,
@@ -62,7 +59,7 @@ const ConfigSchema = new Schema<ConfigModelType>({
                 required: true
             },
         },
-        required: false
+        required: true
     }
 })
 
