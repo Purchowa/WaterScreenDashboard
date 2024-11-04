@@ -8,6 +8,19 @@ export default class WaterScreenSocketController implements SocketController {
 
     public initializeEvents(io: Server) {
         io.on("connection", (socket: Socket) => {
+            console.log("[sIO] got new connection");
+
+            console.log("[sIO] initial transport", socket.conn.transport.name);
+
+            socket.conn.once("upgrade", () => {
+                // called when the transport is upgraded (i.e. from HTTP long-polling to WebSocket)
+                console.log("[sIO] upgraded transport", socket.conn.transport.name);
+            });
+
+            socket.conn.on("close", (reason) => {
+                console.log(`[sIO] connection closed, reason: ${reason}`)
+            });
+
             socket.on("getState", () => {
                 this.stateService.getLatestState()
                     .then((state) => {
