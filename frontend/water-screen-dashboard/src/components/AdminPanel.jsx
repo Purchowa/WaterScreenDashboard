@@ -56,6 +56,7 @@ function AdminPanel() {
             .then(response => {
                 const dashboardConfig = response.data;
                 setConfig(dashboardConfig);
+                setPicture({ data: dashboardConfig.picture.data.toString(), size: dashboardConfig.picture.size });
             })
             .catch(error => {
                 console.error("There was an error fetching the config!", error);
@@ -92,7 +93,7 @@ function AdminPanel() {
         if (name === 'data' || name === 'size') {
             setPicture(prevPicture => ({
                 ...prevPicture,
-                [name]: type === 'checkbox' ? checked : value
+                [name]: value
             }));
         } else if (name === 'username' || name === 'password') {
             setLoginData(prevLoginData => ({
