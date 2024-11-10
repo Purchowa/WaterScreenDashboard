@@ -33,13 +33,17 @@ function AdminPanel() {
     const [intervalID, setIntervalID] = useState();
     const [errorText, setErrorText] = useState("");
 
-    const FormStates = {
+    const FormStates = Object.freeze({
         WaitingInput: 'btn-primary',
         Error: 'btn-warning',
         Success: 'btn-success'
-    };
+    });
 
     const [formState, setFormState] = useState(FormStates.WaitingInput);
+
+    useEffect(() => {
+        setFormState(FormStates.WaitingInput);
+    }, [picture, config])
 
     useEffect(() => {
         const token = localStorage.getItem('jwt');
