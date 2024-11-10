@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { ConfigModelType, PictureDataType } from "modules/models/config.model";
+import { ConfigModelType, PictureDataType, Range } from "modules/models/config.model";
 
 import { ModeVariant } from "../models/waterscreenState.model";
 
@@ -58,6 +58,29 @@ const ConfigSchema = new Schema<ConfigModelType>({
                 },
                 required: true
             },
+        },
+        required: true
+    },
+    workRange: {
+        type: {
+            from: {
+                type: Number,
+                min: 0,
+                max: 24,
+                required: true
+            },
+            to: {
+                type: Number,
+                min: 0,
+                max: 24,
+                required: true
+            }
+        },
+        validate: {
+            validator: function (workRange: Range) {
+                return workRange.from < workRange.to;
+            },
+            message: () => "'from' must be smaller than 'to'"
         },
         required: true
     }

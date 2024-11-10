@@ -5,7 +5,7 @@ import './navbar.css';
 
 const Navbar = () => {
     return (
-        <nav>
+        <nav className='navBar'>
             <div className="content">
                 <a href="https://anstar.edu.pl" title="Strona główna">
                     <img

@@ -12,7 +12,11 @@ function AdminPanel() {
         enableWeekends: false,
         workTime: 1,
         idleTime: 1,
-        mailList: []
+        mailList: [],
+        workRange: {
+            from: 0,
+            to: 0,
+        }
     });
     const [picture, setPicture] = useState({ data: "", size: 0 });
     const [state, setState] = useState({
@@ -28,6 +32,14 @@ function AdminPanel() {
 
     const [intervalID, setIntervalID] = useState();
     const [errorText, setErrorText] = useState("");
+
+    const FormStates = {
+        WaitingInput: 'btn-primary',
+        Error: 'btn-warning',
+        Success: 'btn-success'
+    };
+
+    const [formState, setFormState] = useState(FormStates.WaitingInput);
 
     useEffect(() => {
         const token = localStorage.getItem('jwt');
@@ -87,27 +99,6 @@ function AdminPanel() {
         };
     };
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-
-        if (name === 'data' || name === 'size') {
-            setPicture(prevPicture => ({
-                ...prevPicture,
-                [name]: value
-            }));
-        } else if (name === 'username' || name === 'password') {
-            setLoginData(prevLoginData => ({
-                ...prevLoginData,
-                [name]: value
-            }));
-        } else {
-            setConfig(prevConfig => ({
-                ...prevConfig,
-                [name]: type === 'checkbox' ? checked : (name === 'mailList' ? value.split(',').map(email => email.trim()) : value)
-            }));
-        }
-    };
-
     const handleLogin = (e) => {
         e.preventDefault();
         axios.post(`${appConfig.host}/${appConfig.restURI}/dashboard/login`, loginData)
@@ -143,6 +134,7 @@ function AdminPanel() {
             .then(response => {
                 console.log('Config updated successfully', response.data);
                 setErrorText("");
+                setFormState(FormStates.Success);
             })
             .catch(error => {
                 console.error("There was an error updating the config!", error);
@@ -150,7 +142,10 @@ function AdminPanel() {
                 if (error.response.status === unauthorizedStatus)
                     setIsAuthenticated(false);
                 else
+                {
                     setErrorText(error.response.data.message);
+                    setFormState(FormStates.Error);
+                }
             });
     };
 
@@ -169,7 +164,7 @@ function AdminPanel() {
                                 type="text"
                                 name="username"
                                 value={loginData.username}
-                                onChange={handleChange}
+                                onChange={(e) => { setLoginData({ ...loginData, username: e.target.value }) }}
                                 className="form-input"
                             />
                         </label>
@@ -181,7 +176,7 @@ function AdminPanel() {
                                 type="password"
                                 name="password"
                                 value={loginData.password}
-                                onChange={handleChange}
+                                onChange={(e) => { setLoginData({ ...loginData, password: e.target.value }) }}
                                 className="form-input"
                             />
                         </label>
@@ -194,7 +189,7 @@ function AdminPanel() {
 
     return (
         <div className="admin_content">
-            <button onClick={handleLogout} style={{backgroundColor: "#f44336", padding: "10px 20px", border: "none", borderRadius: "5px"}}>Logout</button>
+            <button onClick={handleLogout} style={{ backgroundColor: "#f44336", padding: "10px 20px", border: "none", borderRadius: "5px", marginBottom: 8 }}>Logout</button>
             <h2>Current State</h2>
             <p>Fluid Level: <span style={{ fontWeight: 'bold', color: state.fluidLevel == 0 ? "green" : "red" }}>{fluidLevelNames[state.fluidLevel]}</span></p>
             <p>Is running: <span style={{ fontWeight: 'bold' }}>{state.isPresenting ? 'Yes' : 'No'}</span></p>
@@ -208,7 +203,7 @@ function AdminPanel() {
                         <select
                             name="mode"
                             value={config.mode}
-                            onChange={handleChange}
+                            onChange={(e) => { setConfig({ ...config, mode: e.target.value }) }}
                             className="form-input"
                         >
                             <option value={0}>Standard</option>
@@ -224,7 +219,7 @@ function AdminPanel() {
                             type="checkbox"
                             name="enableWeekends"
                             checked={config.enableWeekends}
-                            onChange={handleChange}
+                            onChange={(e) => { setConfig({ ...config, enableWeekends: e.target.checked }) }}
                             className="form-input"
                         />
                     </label>
@@ -237,7 +232,7 @@ function AdminPanel() {
                             name="workTime"
                             value={config.workTime}
                             min={1}
-                            onChange={handleChange}
+                            onChange={(e) => { setConfig({ ...config, workTime: e.target.value }) }}
                             className="form-input"
                         />
                     </label>
@@ -250,8 +245,36 @@ function AdminPanel() {
                             name="idleTime"
                             value={config.idleTime}
                             min={1}
-                            onChange={handleChange}
+                            onChange={(e) => { setConfig({ ...config, idleTime: e.target.value }) }}
                             className="form-input"
+                        />
+                    </label>
+                </div>
+                <div className="form-group" >
+                    <label className="form-label" >
+                        Work range:
+                    </label>
+
+                    <label> From
+                        <input
+                            type="number"
+                            name="from"
+                            value={config.workRange.from}
+                            min={0}
+                            onChange={(e) => setConfig({ ...config, workRange: { ...config.workRange, from: e.target.value } })}
+                            className="form-input"
+                            style={{ marginLeft: 8 }}
+                        />
+                    </label>
+                    <label> To
+                        <input
+                            type="number"
+                            name="to"
+                            value={config.workRange.to}
+                            min={0}
+                            onChange={(e) => setConfig({ ...config, workRange: { ...config.workRange, to: e.target.value } })}
+                            className="form-input"
+                            style={{ marginLeft: 8 }}
                         />
                     </label>
                 </div>
@@ -262,7 +285,7 @@ function AdminPanel() {
                             type="text"
                             name="mailList"
                             value={config.mailList.join(', ')}
-                            onChange={handleChange}
+                            onChange={(e) => { setConfig({ ...config, mailList: e.target.value.split(',').map(email => email.trim()) }) }}
                             className="form-input"
                         />
                     </label>
@@ -273,7 +296,7 @@ function AdminPanel() {
                         <textarea
                             name="data"
                             value={picture.data}
-                            onChange={handleChange}
+                            onChange={(e) => { setPicture({ ...picture, data: e.target.value }) }}
                             className="form-input"
                         />
                     </label>
@@ -285,13 +308,13 @@ function AdminPanel() {
                             type="number"
                             name="size"
                             value={picture.size}
-                            min="0"
-                            onChange={handleChange}
+                            min={0}
+                            onChange={(e) => { setPicture({ ...picture, size: e.target.value }) }}
                             className="form-input"
                         />
                     </label>
                 </div>
-                <button type="submit" className="submit-button">Submit</button>
+                <button type="submit" className={`btn btn-lg ${formState}`}>Submit</button>
             </form>
             <div>
                 <p style={{ color: 'red' }}>{errorText}</p>

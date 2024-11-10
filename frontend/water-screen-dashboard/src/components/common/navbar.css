@@ -1,25 +1,18 @@
-nav {
+.navBar {
+    display: flex;
     position: fixed;
     top: 0;
     left: 0;
-    height: 10vh;
     width: 100%;
+    flex-wrap: wrap;
     background-color: #99b4d0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
+    justify-content: space-evenly;
 }
 
 .content {
-    height: 100%;
-    width: 400px;
-    margin: 0 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
+    align-content: center;
     font-size: x-large;
+    padding: 0 2vh 0 2vh;
     font-weight: bolder;
     color: #0043FF;
 }

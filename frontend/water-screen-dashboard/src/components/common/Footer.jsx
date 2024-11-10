@@ -5,11 +5,10 @@ import fb_logo from '../../assets/facebook_logo.png'
 
 const Footer = () => {
     return (
-        <footer>
-            <a href="https://www.facebook.com/KatedraInformatykiAT" target="_blank">
-                <img src={fb_logo} alt="Logo"/>
+        <footer >
+            <a href="https://www.facebook.com/KatedraInformatykiAT" target="_blank" >
+                <img src={fb_logo} alt="Logo" style={{ padding: 8 }} />
             </a>
-
         </footer>
     );
 };
