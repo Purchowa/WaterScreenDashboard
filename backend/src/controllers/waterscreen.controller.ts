@@ -1,4 +1,4 @@
-import express, { Response, Request } from 'express';
+import express, { Response, Request, NextFunction } from 'express';
 import basicAuth from 'express-basic-auth';
 import { Error } from 'mongoose'
 
@@ -25,7 +25,7 @@ export default class WaterScreenController implements Controller {
 
     private initializeRoutes() {
         this.router.get(`${this.path}/config`, this.protected, this.getConfig);
-        this.router.post(`${this.path}/state`, this.protected, handleLowWaterMailNotification, this.postState);
+        this.router.post(`${this.path}/state`, this.protected, this.postState);
     }
 
     private getConfig = (request: Request, response: Response) => {
@@ -42,7 +42,7 @@ export default class WaterScreenController implements Controller {
     private postState = (request: Request, response: Response) => {
         const newState: WaterscreenStateModelType = request.body;
         this.stateService.addState(newState)
-            .then((addedValue) => response.status(200).json(addedValue))
+            .then((addedValue) => { response.status(200).json(addedValue); handleLowWaterMailNotification(request); })
             .catch((error: Error.ValidationError) => { response.status(400).json(error) })
             .catch((error) => { console.error(error); response.status(500).json({ error: "Couldn't add new state" }) });
     }

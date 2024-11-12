@@ -1,19 +1,31 @@
 import { WaterscreenStateModelType } from "../models/waterscreenState.model";
 import { StateModel } from "../schemas/waterscreenState.schema";
 
-export default class WaterscreenStateService {
-    public getLatestState = async (): Promise<WaterscreenStateModelType | undefined> => {
+enum StateOrder {
+    Latest = 0,
+    BeforeLatest = 1
+};
 
-        const data = await StateModel.findOne({}).sort('-date');
+export default class WaterscreenStateService {
+    public getLatestState = (): Promise<WaterscreenStateModelType | undefined> => {
+        return this.getState(StateOrder.Latest);
+    }
+
+    public getOneBeforeLatestState = (): Promise<WaterscreenStateModelType | undefined> => {
+        return this.getState(StateOrder.BeforeLatest);
+    }
+
+    public addState = async (state: WaterscreenStateModelType) => {
+        return StateModel.create([state], { validateBeforeSave: true });
+    }
+
+    private async getState(order: StateOrder) {
+        const data = (await StateModel.find({}).sort('-date').limit(2)).at(order);
 
         if (data) {
             return { mode: data.mode, fluidLevel: data.fluidLevel, isPresenting: data.isPresenting };
         }
         else
             return undefined;
-    }
-
-    public addState = async (state: WaterscreenStateModelType) => {
-        return StateModel.create([state], { validateBeforeSave: true });
     }
 }

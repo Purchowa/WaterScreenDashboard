@@ -54,12 +54,12 @@ function sendMailWithHtmlContent(path: string, mailList: string[], sendMail: (ma
     });
 }
 
-export function handleLowWaterMailNotification(request: Request, response: Response, next: NextFunction) {
+export function handleLowWaterMailNotification(request: Request) {
     const newState: WaterscreenStateModelType = request.body;
 
     if (newState.fluidLevel === FluidLevel.Low) {
         const stateService = new WaterscreenStateService();
-        stateService.getLatestState()
+        stateService.getOneBeforeLatestState()
             .then((state) => {
                 if (state && state.fluidLevel !== newState.fluidLevel) {
                     const configService = new ConfigService();
@@ -71,13 +71,8 @@ export function handleLowWaterMailNotification(request: Request, response: Respo
                         })
                         .catch((error) => { console.error(error); });
                 }
-                next();
-
             })
             .catch((error) => { console.error(error); });
-    }
-    else {
-        next();
     }
 
 }
