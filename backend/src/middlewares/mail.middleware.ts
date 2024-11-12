@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request } from 'express';
 import Mail from 'nodemailer/lib/mailer';
 import nodemailer from 'nodemailer'
 import fs from 'fs';
