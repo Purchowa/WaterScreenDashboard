@@ -1,7 +1,18 @@
 import { ModeVariant } from "./waterscreenState.model"
 
+export type RGBType = {
+    r: number,
+    g: number,
+    b: number
+}
+
 export type PictureDataType = {
-    picture: { data: number[], size: number }
+    size: number,
+    data?: number[],
+    colors: {
+        main: RGBType,
+        secondary: RGBType
+    }
 }
 
 export type Range = {
@@ -15,6 +26,6 @@ export type ConfigModelType = {
     workTime: number,
     idleTime: number,
     mailList?: string[],
-    picture?: PictureDataType,
+    picture: PictureDataType,
     workRange: Range,
 }

@@ -1,8 +1,72 @@
 import { Schema, model } from "mongoose";
-import { ConfigModelType, PictureDataType, Range } from "modules/models/config.model";
+import { ConfigModelType, RGBType, PictureDataType, Range } from "modules/models/config.model";
 
 import { ModeVariant } from "../models/waterscreenState.model";
 
+const RGBSchema = new Schema<RGBType>({
+    r: {
+        type: Number,
+        min: 0,
+        max: 255,
+        required: true
+    },
+    g: {
+        type: Number,
+        min: 0,
+        max: 255,
+        required: true
+    },
+    b: {
+        type: Number,
+        min: 0,
+        max: 255,
+        required: true
+    },
+})
+
+const PictureSchema = new Schema<PictureDataType>({
+    size: {
+        type: Number,
+        min: 0,
+        max: 64,
+        required: true
+    },
+    data: {
+        type: Array<Number>,
+        validate: [
+            {
+                validator: function (data: any) {
+                    return !data.some(isNaN);
+                },
+                message: () => "Picutre data must be composed of numbers!",
+            },
+            {
+                validator: function (this: any, data: number[]) {
+                    return data.length === this.get('size');
+                },
+                message: () => "Picutre size doesn't match the data array length!",
+            }
+        ],
+        required: true
+    },
+    colors:
+    {
+        type:
+        {
+            main:
+            {
+                type: RGBSchema,
+                required: true
+            },
+            secondary:
+            {
+                type: RGBSchema,
+                required: true
+            }
+        },
+        required: true
+    }
+})
 
 const ConfigSchema = new Schema<ConfigModelType>({
     wasRead: {
@@ -41,24 +105,7 @@ const ConfigSchema = new Schema<ConfigModelType>({
         required: false
     },
     picture: {
-        type: {
-            size: {
-                type: Number,
-                min: 0,
-                max: 64,
-                required: true
-            },
-            data: {
-                type: Array<Number>,
-                validate: {
-                    validator: function (this: any, data: number[]) {
-                        return data.length === this.get('size');
-                    },
-                    message: () => "Picutre size doesn't match the data array length!",
-                },
-                required: true
-            },
-        },
+        type: PictureSchema,
         required: true
     },
     workRange: {

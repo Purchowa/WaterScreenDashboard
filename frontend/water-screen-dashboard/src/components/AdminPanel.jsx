@@ -2,11 +2,18 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 import { isExpired } from 'react-jwt'
+import { RgbColorPicker } from "react-colorful";
 
 import appConfig from '../config.js'
 import '../styles/App.css';
 
 function AdminPanel() {
+    const [state, setState] = useState({
+        fluidLevel: 0,
+        isPresenting: false,
+        mode: 0
+    });
+
     const [config, setConfig] = useState({
         mode: 0,
         enableWeekends: false,
@@ -19,11 +26,8 @@ function AdminPanel() {
         }
     });
     const [picture, setPicture] = useState({ data: "", size: 0 });
-    const [state, setState] = useState({
-        fluidLevel: 0,
-        isPresenting: false,
-        mode: 0
-    });
+    const [pictureColors, setPictureColors] = useState({ main: { r: 0, g: 0, b: 0 }, secondary: { r: 0, g: 0, b: 0 } });
+
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loginData, setLoginData] = useState({
         username: "",
@@ -73,6 +77,7 @@ function AdminPanel() {
                 const dashboardConfig = response.data;
                 setConfig(dashboardConfig);
                 setPicture({ data: dashboardConfig.picture.data.toString(), size: dashboardConfig.picture.size });
+                setPictureColors(dashboardConfig.picture.colors)
             })
             .catch(error => {
                 console.error("There was an error fetching the config!", error);
@@ -124,12 +129,17 @@ function AdminPanel() {
     }
     const handleSubmit = (e) => {
         e.preventDefault();
-        const token = localStorage.getItem('jwt');
+
         const pictureDataArray = picture.data.split(',').map(num => parseInt(num.trim(), 10));
+        if (pictureDataArray.some(isNaN)) {
+            setErrorText("Picutre data must be composed of numbers!");
+            setFormState(FormStates.Error);
+            return;
+        }
 
-        const updatedConfig = picture.data !== "" ? { ...config, picture: { data: pictureDataArray, size: picture.size } } : config;
+        const updatedConfig = { ...config, picture: { data: pictureDataArray, size: picture.size, colors: pictureColors } };
 
-        console.log(updatedConfig);
+        const token = localStorage.getItem('jwt');
         axios.post(`${appConfig.host}/${appConfig.restURI}/dashboard/config`, updatedConfig, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -145,8 +155,7 @@ function AdminPanel() {
                 const unauthorizedStatus = 401;
                 if (error.response.status === unauthorizedStatus)
                     setIsAuthenticated(false);
-                else
-                {
+                else {
                     setErrorText(error.response.data.message);
                     setFormState(FormStates.Error);
                 }
@@ -316,6 +325,16 @@ function AdminPanel() {
                             onChange={(e) => { setPicture({ ...picture, size: e.target.value }) }}
                             className="form-input"
                         />
+                    </label>
+                </div>
+                <div className="form-group" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <label className='form-label'>
+                        Main color
+                        <RgbColorPicker color={pictureColors.main} onChange={(newColor) => { setPictureColors({ ...pictureColors, main: newColor }) }} />
+                    </label>
+                    <label className='form-label'>
+                        Secondary color
+                        <RgbColorPicker color={pictureColors.secondary} onChange={(newColor) => { setPictureColors({ ...pictureColors, secondary: newColor }) }} />
                     </label>
                 </div>
                 <button type="submit" className={`btn btn-lg ${formState}`}>Submit</button>
