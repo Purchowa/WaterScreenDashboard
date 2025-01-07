@@ -38,7 +38,7 @@ const PictureSchema = new Schema<PictureDataType>({
                 validator: function (data: any) {
                     return !data.some(isNaN);
                 },
-                message: () => "Picutre data must be composed of numbers!",
+                message: () => "Picture data must be composed of numbers!",
             },
             {
                 validator: function (this: any, data: number[]) {

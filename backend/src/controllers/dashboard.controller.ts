@@ -10,6 +10,7 @@ import UserService from '../modules/services/user.service';
 import { ConfigModelType } from '../modules/models/config.model';
 import { UserModelType } from '../modules/models/user.model';
 import { authJwt } from '../middlewares/auth.middleware';
+import WaterscreenStateService from "../modules/services/waterscreenState.service";
 
 export default class DashboardController implements Controller {
     public path = '/dashboard';
@@ -18,6 +19,7 @@ export default class DashboardController implements Controller {
     private configService = new ConfigService();
     private jwtService = new JwtTokenService();
     private userService = new UserService();
+    private stateService = new WaterscreenStateService();
 
     constructor() {
         this.initializeRoutes();
@@ -27,6 +29,7 @@ export default class DashboardController implements Controller {
         this.router.get(`${this.path}/config`, authJwt, this.getAllConfig);
         this.router.post(`${this.path}/config`, authJwt, this.updateConfig);
         this.router.post(`${this.path}/login`, this.login);
+        this.router.get(`${this.path}/state`,authJwt, this.getState );
     }
 
     private updateConfig = (request: Request, response: Response) => {
@@ -62,5 +65,16 @@ export default class DashboardController implements Controller {
             })
             .catch((error: Error.ValidationError) => { response.status(401).json({ error: "user not found" }) })
             .catch((error) => { response.status(500).json({ error: "internal error" }) });
+    }
+
+    private getState = (request: Request, response: Response) => {
+        this.stateService.getLatestState()
+            .then((state) => {
+                if (state)
+                    response.status(200).json(state)
+                else
+                    response.status(404).json({ error: "State not found" });
+            })
+            .catch((error) => { console.error(error); response.status(500).json({ error: "Internal error" }) });
     }
 }
