@@ -162,7 +162,7 @@ function AdminPanel() {
             });
     };
 
-    const modeNames = ["Standard", "Demo", "Service"];
+    const modeNames = ["Standard", "Demo", "Service", "BLE realtime"];
     const fluidLevelNames = ["Optimal", "Low"];
 
     if (!isAuthenticated) {

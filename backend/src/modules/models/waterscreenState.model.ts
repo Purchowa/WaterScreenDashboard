@@ -3,6 +3,7 @@ export enum ModeVariant {
     Standard,
     Demo,
     Service,
+    Realtime,
     SIZE
 };
 
