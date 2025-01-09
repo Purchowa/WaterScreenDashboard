@@ -8,7 +8,7 @@ const RGBSchema = new Schema<RGBType>({
 });
 
 const PictureSchema = new Schema<PictureDataType>({
-    size: { type: Number, min: 0, max: 64, required: true },
+    size: { type: Number, min: 0, max: 256, required: true },
     data: {
         type: [Number],
         validate: [
