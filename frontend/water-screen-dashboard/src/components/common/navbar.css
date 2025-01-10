@@ -1,9 +1,5 @@
 .navBar {
     display: flex;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
     flex-wrap: wrap;
     background-color: #99b4d0;
     justify-content: space-evenly;
@@ -14,24 +10,20 @@
     font-size: x-large;
     padding: 0 2vh 0 2vh;
     font-weight: bolder;
-    color: #0043FF;
 }
 
 .content:hover{
     background-color: #f3f4ff;
 }
 
-footer{
-    position: fixed;
-    bottom: 0;
-    left: 0;
+footer {
     height: 6vh;
     width: 100%;
     background-color: #99b4d0;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    margin-top: auto;
 }
 
 footer img{

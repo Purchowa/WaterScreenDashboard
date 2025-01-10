@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { io } from 'socket.io-client';
-import { isExpired } from 'react-jwt'
 import { RgbColorPicker } from "react-colorful";
 
 import { useAuth } from '@/context/AuthContext';
@@ -9,13 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import appConfig from '../config.js'
 import '../styles/App.css';
 
-function AdminPanel() {
-    const [state, setState] = useState({
-        fluidLevel: 0,
-        isPresenting: false,
-        mode: 0
-    });
-
+function Configuration() {
     const [config, setConfig] = useState({
         mode: 0,
         enableWeekends: false,
@@ -30,13 +22,7 @@ function AdminPanel() {
     const [picture, setPicture] = useState({ data: "", size: 0 });
     const [pictureColors, setPictureColors] = useState({ main: { r: 0, g: 0, b: 0 }, secondary: { r: 0, g: 0, b: 0 } });
 
-    const { isAuthenticated, login, logout } = useAuth();
-    const [loginData, setLoginData] = useState({
-        username: "",
-        password: ""
-    });
-
-    const [intervalID, setIntervalID] = useState();
+    const { isAuthenticated, logout } = useAuth();
     const [errorText, setErrorText] = useState("");
 
     const FormStates = Object.freeze({
@@ -52,22 +38,12 @@ function AdminPanel() {
     }, [picture, config])
 
     useEffect(() => {
-        const token = localStorage.getItem('jwt');
-        let clearSocketConnection = undefined;
-        if (token && !isExpired(token)) {
-            login();
+        if (isAuthenticated) {
+            const token = localStorage.getItem('jwt');
             fetchConfig(token);
-            clearSocketConnection = setupSocket();
+            console.log('fetch')
         }
-        return () => {
-            if (intervalID) {
-                clearInterval(intervalID);
-            }
-            if (clearSocketConnection) {
-                clearSocketConnection();
-            }
-        }
-    }, []);
+    }, [isAuthenticated]);
 
     const fetchConfig = (token) => {
         axios.get(`${appConfig.host}/${appConfig.restURI}/dashboard/config`, {
@@ -83,45 +59,6 @@ function AdminPanel() {
             })
             .catch(error => {
                 console.error("There was an error fetching the config!", error);
-            });
-    };
-
-    const setupSocket = () => {
-        const socket = io(appConfig.host, {
-            path: `/${appConfig.restURI}/socket.io/`
-        });
-
-        socket.on('connect', () => {
-            console.log('Connected to socket server');
-
-            setIntervalID(setInterval(() => { socket.emit('getState'); }, appConfig.gettingStateIntervalTime_ms));
-        });
-
-        socket.on('state', (recState) => {
-            setState(recState);
-        });
-
-        socket.on('connect_error', (error) => {
-            console.error('Connection error:', error);
-        });
-
-        return () => {
-            socket.disconnect();
-        };
-    };
-
-    const handleLogin = (e) => {
-        e.preventDefault();
-        axios.post(`${appConfig.host}/${appConfig.restURI}/dashboard/login`, loginData)
-            .then(response => {
-                const token = response.data.token;
-                localStorage.setItem('jwt', token);
-                login();
-                fetchConfig(token);
-                setupSocket(token);
-            })
-            .catch(error => {
-                console.error("There was an error logging in!", error);
             });
     };
 
@@ -160,51 +97,9 @@ function AdminPanel() {
             });
     };
 
-    const modeNames = ["Standard", "Demo", "Service", "BLE realtime"];
-    const fluidLevelNames = ["Optimal", "Low"];
-
-    if (!isAuthenticated) {
-        return (
-            <div className="admin_content">
-               <h1>Login</h1>
-                <form onSubmit={handleLogin}>
-                    <div className="form-group">
-                        <label className="form-label">
-                            Username:
-                            <input
-                                type="text"
-                                name="username"
-                                value={loginData.username}
-                                onChange={(e) => { setLoginData({ ...loginData, username: e.target.value }) }}
-                                className="form-input"
-                            />
-                        </label>
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label">
-                            Password:
-                            <input
-                                type="password"
-                                name="password"
-                                value={loginData.password}
-                                onChange={(e) => { setLoginData({ ...loginData, password: e.target.value }) }}
-                                className="form-input"
-                            />
-                        </label>
-                    </div>
-                    <button type="submit" className="submit-button">Login</button>
-                </form>
-            </div>
-        );
-    }
-
     return (
         <div className="admin_content">
-            <h2>Current State</h2>
-            <p>Fluid Level: <span style={{ fontWeight: 'bold', color: state.fluidLevel == 0 ? "green" : "red" }}>{fluidLevelNames[state.fluidLevel]}</span></p>
-            <p>Is running: <span style={{ fontWeight: 'bold' }}>{state.isPresenting ? 'Yes' : 'No'}</span></p>
-            <p>Mode: <span style={{ fontWeight: 'bold' }}>{modeNames[state.mode]}</span></p>
-            <h2>Config</h2>
+            <h2>Configuration</h2>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label className="form-label">
@@ -342,4 +237,4 @@ function AdminPanel() {
     );
 }
 
-export default AdminPanel;
+export default Configuration;
