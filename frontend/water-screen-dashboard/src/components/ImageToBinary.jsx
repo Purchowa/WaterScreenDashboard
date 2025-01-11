@@ -66,7 +66,7 @@ const ImageToBinary = () => {
 
         img.onload = () => {
             canvas.width = 64;
-            canvas.height = 48;
+            canvas.height = 40;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
