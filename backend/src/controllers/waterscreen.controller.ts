@@ -1,7 +1,6 @@
 import express, { Response, Request, response } from 'express';
 import basicAuth from 'express-basic-auth';
 import { Error } from 'mongoose'
-import JSONbig from 'json-bigint';
 
 import { config } from '../config';
 import Controller from "interfaces/controller.interface";
@@ -70,9 +69,7 @@ export default class WaterScreenController implements Controller {
         this.webPictureService.getWebPicture()
             .then((webPicture) => {
                 if (webPicture) {
-                    response.status(200);
-                    response.setHeader('Content-Type', 'application/json');
-                    response.send(JSONbig.stringify(webPicture));
+                    response.status(200).json(webPicture);
                 }
                 else
                     response.status(404).json({ error: "WebPicture not found" });
