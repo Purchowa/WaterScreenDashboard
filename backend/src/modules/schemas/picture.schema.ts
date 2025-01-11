@@ -35,7 +35,7 @@ export default function createPictureSchema(maxSize: number) {
             required: true
         },
         data: {
-            type: Array<string>,
+            type: Array<String>,
             validate: [
                 {
                     validator: function (data: any) {

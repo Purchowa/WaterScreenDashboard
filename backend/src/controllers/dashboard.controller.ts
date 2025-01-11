@@ -86,8 +86,9 @@ export default class DashboardController implements Controller {
     }
 
     private updateWebPicture = (request: Request, response: Response) => {
-        const data: PictureDataType = request.body;
-        this.webPictureService.updateWebPicture(data)
+        const picture: PictureDataType = request.body;
+        picture.data = picture.data?.map((value) => value.toString());
+        this.webPictureService.updateWebPicture(picture)
             .then((updData) => response.status(200).json(updData))
             .catch((error: Error.ValidationError) => { response.status(400).json(error); })
             .catch((error) => { console.error(error); response.status(500).json({ error: "Internal error" }) });
