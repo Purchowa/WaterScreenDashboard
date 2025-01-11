@@ -9,8 +9,12 @@ import UserService from '../modules/services/user.service';
 
 import { ConfigModelType } from '../modules/models/config.model';
 import { UserModelType } from '../modules/models/user.model';
-import { authJwt } from '../middlewares/auth.middleware';
+import { PictureDataType } from '../modules/models/picture.model';
+
 import WaterscreenStateService from "../modules/services/waterscreenState.service";
+import WebPictureService from '../modules/services/webPicture.service';
+
+import { authJwt } from '../middlewares/auth.middleware';
 
 export default class DashboardController implements Controller {
     public path = '/dashboard';
@@ -20,6 +24,7 @@ export default class DashboardController implements Controller {
     private jwtService = new JwtTokenService();
     private userService = new UserService();
     private stateService = new WaterscreenStateService();
+    private webPictureService = new WebPictureService();
 
     constructor() {
         this.initializeRoutes();
@@ -29,7 +34,9 @@ export default class DashboardController implements Controller {
         this.router.get(`${this.path}/config`, authJwt, this.getAllConfig);
         this.router.post(`${this.path}/config`, authJwt, this.updateConfig);
         this.router.post(`${this.path}/login`, this.login);
-        this.router.get(`${this.path}/state`,authJwt, this.getState );
+        this.router.get(`${this.path}/state`, authJwt, this.getState);
+        this.router.post(`${this.path}/webPicture`, authJwt, this.updateWebPicture);
+        this.router.get(`${this.path}/webPicture`, authJwt, this.getWebPicture);
     }
 
     private updateConfig = (request: Request, response: Response) => {
@@ -71,10 +78,29 @@ export default class DashboardController implements Controller {
         this.stateService.getLatestState()
             .then((state) => {
                 if (state)
-                    response.status(200).json(state)
+                    response.status(200).json(state);
                 else
                     response.status(404).json({ error: "State not found" });
             })
             .catch((error) => { console.error(error); response.status(500).json({ error: "Internal error" }) });
+    }
+
+    private updateWebPicture = (request: Request, response: Response) => {
+        const data: PictureDataType = request.body;
+        this.webPictureService.updateWebPicture(data)
+            .then((updData) => response.status(200).json(updData))
+            .catch((error: Error.ValidationError) => { response.status(400).json(error); })
+            .catch((error) => { console.error(error); response.status(500).json({ error: "Internal error" }) });
+    }
+
+    private getWebPicture = (request: Request, response: Response) => {
+        this.webPictureService.getWebPicture()
+            .then((webPicture) => {
+                if (webPicture)
+                    response.status(200).json(webPicture);
+                else
+                    response.status(404).json({ error: "WebPicture not found" });
+            })
+            .catch((error) => { console.error(error); response.status(500).json({ error: "Internal error" }); });
     }
 }

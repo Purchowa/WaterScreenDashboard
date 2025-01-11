@@ -1,5 +1,5 @@
-import { PictureCollectionModel } from "../models/picture.model"; // Model odpowiedzialny za przechowywanie obrazków
-import { PictureDataType } from "../models/config.model"; // Typ danych obrazu
+import { PictureCollectionModel } from "../schemas/pictureCollection.schema"; // Model odpowiedzialny za przechowywanie obrazków
+import { PictureDataType } from "../models/picture.model"; // Typ danych obrazu
 
 export default class PicturesService {
     public getAllPictures = async (): Promise<PictureDataType[] | null> => {

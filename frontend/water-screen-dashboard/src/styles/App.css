@@ -19,6 +19,8 @@ body,
   background-color: #E0E9F5;
   border-radius: 10px;
   text-align: center;
+  margin-top: 5vh;
+    margin-bottom: 5vh;
 }
 .admin_content{
   background-color: #E0E9F5;
@@ -26,8 +28,8 @@ body,
   width: 70vw;
   margin: auto;
   padding: 20px;
-  margin-top: 170px;
-  margin-bottom: 150px;
+  margin-top: 5vh;
+    margin-bottom: 5vh;
   font-size: 20px;
   text-align: center;
 }

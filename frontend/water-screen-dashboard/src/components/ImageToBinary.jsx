@@ -1,11 +1,59 @@
-import React, { useState } from "react";
+import appConfig from '../config.js'
+
+import React, { useState, useEffect } from "react";
 import { RgbColorPicker } from "react-colorful";
+import axios from 'axios';
+import JSONbig from 'json-bigint';
+
+import { useAuth } from '@/context/AuthContext';
 
 const ImageToBinary = () => {
-    const [binaryArray, setBinaryArray] = useState(null);
-    const [binaryImage, setBinaryImage] = useState(null);
+    const [pixelArray, setPixelArray] = useState(null);
+    const [imageData, setImageData] = useState(null);
     const [mainColor, setMainColor] = useState({ r: 0, g: 0, b: 0 });
     const [secondaryColor, setSecondaryColor] = useState({ r: 255, g: 255, b: 255 });
+
+    const { logout } = useAuth();
+
+    function numberToBinaryRow(value) {
+        const binaryString = value.toString(2);
+        const paddedBinaryString = binaryString.padStart(64, "0");
+        return Array.from(paddedBinaryString, (char) => Number(char));
+    }
+
+    const axiosBigInt = axios.create({
+        transformResponse: [(data) => {
+            try {
+                return JSONbig.parse(data);
+            } catch (error) {
+                return data;
+            }
+        }]
+    })
+    useEffect(() => {
+        const token = localStorage.getItem('jwt');
+        axiosBigInt.get(`${appConfig.host}/${appConfig.restURI}/dashboard/webPicture`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        })
+            .then(response => {
+                const webPicture = response.data;
+                setImageData(webPicture.data)
+                setPixelArray(webPicture.data.map((value) => numberToBinaryRow(BigInt(value))));
+                setMainColor(webPicture.colors.main);
+                setSecondaryColor(webPicture.colors.secondary);
+            })
+            .catch(error => {
+                console.error("There was an error getting the webPicture!", error);
+                const unauthorizedStatus = 401;
+                if (error.response.status === unauthorizedStatus)
+                    logout();
+                else {
+                    console.error(error.response.data.message);
+                }
+            });
+    }, [])
 
     const handleImageUpload = (event) => {
         const file = event.target.files[0];
@@ -18,7 +66,7 @@ const ImageToBinary = () => {
 
         img.onload = () => {
             canvas.width = 64;
-            canvas.height = 50;
+            canvas.height = 48;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -42,17 +90,37 @@ const ImageToBinary = () => {
                 uint64.push(uint64Row);
             }
 
-            setBinaryArray(binary);
-            setBinaryImage(uint64);
+            setPixelArray(binary);
+            setImageData(uint64);
         };
 
         img.src = URL.createObjectURL(file);
     };
 
     const handleImageSend = () => {
-        if (!binaryImage)
+        if (!imageData)
             return;
-        console.log(binaryImage.toString())
+
+        const image = { data: imageData, size: imageData.length, colors: { main: mainColor, secondary: secondaryColor } };
+        const token = localStorage.getItem('jwt');
+        axios.post(`${appConfig.host}/${appConfig.restURI}/dashboard/webPicture`, JSONbig.stringify(image), {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": 'application/json',
+            }
+        })
+            .then(response => {
+                console.log('WebPicture updated successfully', response.data);
+            })
+            .catch(error => {
+                console.error("There was an error updating the webPicture!", error);
+                const unauthorizedStatus = 401;
+                if (error.response.status === unauthorizedStatus)
+                    logout();
+                else {
+                    console.error(error.response.data.message);
+                }
+            });
     }
 
     const renderBinaryImage = () => {
@@ -65,7 +133,7 @@ const ImageToBinary = () => {
                     border: "2px solid black",
                 }}
             >
-                {binaryArray.flat().map((value, index) => (
+                {pixelArray.flat().map((value, index) => (
                     <div
                         key={index}
                         style={{
@@ -80,27 +148,30 @@ const ImageToBinary = () => {
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", margin: 8 }}>
-            {binaryArray && (
-                <div>
-                    {renderBinaryImage()}
-                </div>
-            )}
-            <input type="file" accept="image/*" onChange={handleImageUpload} style={{ marginTop: 8 }} />
-            <div style={{ margin: "20px 0", textAlign: 'center' }}>
-                <h2>Choose colors</h2>
-                <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
+
+        <div className="admin_content">
+            <h2>Custom picture</h2>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", margin: 8 }}>
+                {pixelArray && (
                     <div>
-                        <h3>Main</h3>
-                        <RgbColorPicker color={mainColor} onChange={setMainColor} />
+                        {renderBinaryImage()}
                     </div>
-                    <div>
-                        <h3>Secondary</h3>
-                        <RgbColorPicker color={secondaryColor} onChange={setSecondaryColor} />
+                )}
+                <input type="file" accept="image/*" onChange={handleImageUpload} style={{ marginTop: 8 }} />
+                <div style={{ margin: "20px 0", textAlign: 'center' }}>
+                    <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
+                        <div>
+                            <h3>Main</h3>
+                            <RgbColorPicker color={mainColor} onChange={setMainColor} />
+                        </div>
+                        <div>
+                            <h3>Secondary</h3>
+                            <RgbColorPicker color={secondaryColor} onChange={setSecondaryColor} />
+                        </div>
                     </div>
                 </div>
+                <button onClick={handleImageSend} type="submit" className={`btn btn-lg btn-primary`}>Submit</button>
             </div>
-            <button onClick={handleImageSend} type="submit" className={`btn btn-lg btn-primary`}>Submit</button>
         </div>
     );
 };

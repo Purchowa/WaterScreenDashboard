@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/json-bigint": "^1.0.4",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
+    "json-bigint": "^1.0.0",
     "react": "^18.2.0",
     "react-colorful": "^5.6.1",
     "react-dom": "^18.2.0",

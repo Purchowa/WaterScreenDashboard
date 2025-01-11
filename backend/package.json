@@ -23,11 +23,13 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@types/json-bigint": "^1.0.4",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-basic-auth": "^1.2.1",
+    "json-bigint": "^1.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.4.0",
     "morgan": "^1.10.0",

@@ -5,10 +5,12 @@ import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import cors from 'cors';
+import JSONbig from 'json-bigint';
 
 import { config } from './config';
 import Controller from './interfaces/controller.interface';
 import SocketController from './interfaces/socket-controller.interface';
+
 
 export default class App {
     private app: express.Application;
@@ -46,7 +48,17 @@ export default class App {
         };
         this.app.use(cors(corsOptions));
 
-        this.app.use(bodyParser.json());
+        this.app.use(bodyParser.text({ type: 'application/json' }));
+        this.app.use((req, res, next) => {
+            if (req.is('application/json') && typeof req.body === 'string') {
+                try {
+                    req.body = JSONbig.parse(req.body);
+                } catch (err) {
+                    return res.status(400).send({ error: 'Invalid JSON' });
+                }
+            }
+            next();
+        });
         this.app.use(morgan('dev'));
     }
 

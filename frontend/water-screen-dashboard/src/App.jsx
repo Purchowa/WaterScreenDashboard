@@ -16,7 +16,6 @@ function App() {
         const token = localStorage.getItem('jwt');
         if (token && !isExpired(token)) {
             login();
-            console.log("login")
         }
         else {
             logout();

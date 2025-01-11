@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { RgbColorPicker } from "react-colorful";
 
 import { useAuth } from '@/context/AuthContext';
 
@@ -19,8 +18,6 @@ function Configuration() {
             to: 0,
         }
     });
-    const [picture, setPicture] = useState({ data: "", size: 0 });
-    const [pictureColors, setPictureColors] = useState({ main: { r: 0, g: 0, b: 0 }, secondary: { r: 0, g: 0, b: 0 } });
 
     const { isAuthenticated, logout } = useAuth();
     const [errorText, setErrorText] = useState("");
@@ -35,13 +32,12 @@ function Configuration() {
 
     useEffect(() => {
         setFormState(FormStates.WaitingInput);
-    }, [picture, config])
+    }, [config])
 
     useEffect(() => {
         if (isAuthenticated) {
             const token = localStorage.getItem('jwt');
             fetchConfig(token);
-            console.log('fetch')
         }
     }, [isAuthenticated]);
 
@@ -54,8 +50,6 @@ function Configuration() {
             .then(response => {
                 const dashboardConfig = response.data;
                 setConfig(dashboardConfig);
-                setPicture({ data: dashboardConfig.picture.data.toString(), size: dashboardConfig.picture.size });
-                setPictureColors(dashboardConfig.picture.colors)
             })
             .catch(error => {
                 console.error("There was an error fetching the config!", error);
@@ -65,17 +59,8 @@ function Configuration() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        const pictureDataArray = picture.data.split(',').map(num => parseInt(num.trim(), 10));
-        if (pictureDataArray.some(isNaN)) {
-            setErrorText("Picutre data must be composed of numbers!");
-            setFormState(FormStates.Error);
-            return;
-        }
-
-        const updatedConfig = { ...config, picture: { data: pictureDataArray, size: picture.size, colors: pictureColors } };
-
         const token = localStorage.getItem('jwt');
-        axios.post(`${appConfig.host}/${appConfig.restURI}/dashboard/config`, updatedConfig, {
+        axios.post(`${appConfig.host}/${appConfig.restURI}/dashboard/config`, config, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -192,40 +177,6 @@ function Configuration() {
                             onChange={(e) => { setConfig({ ...config, mailList: e.target.value.split(',').map(email => email.trim()) }) }}
                             className="form-input"
                         />
-                    </label>
-                </div>
-                <div className="form-group">
-                    <label className="form-label">
-                        Picture Data:
-                        <textarea
-                            name="data"
-                            value={picture.data}
-                            onChange={(e) => { setPicture({ ...picture, data: e.target.value }) }}
-                            className="form-input"
-                        />
-                    </label>
-                </div>
-                <div className="form-group">
-                    <label className="form-label">
-                        Picture Size:
-                        <input
-                            type="number"
-                            name="size"
-                            value={picture.size}
-                            min={0}
-                            onChange={(e) => { setPicture({ ...picture, size: e.target.value }) }}
-                            className="form-input"
-                        />
-                    </label>
-                </div>
-                <div className="form-group" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
-                    <label className='form-label'>
-                        Main color
-                        <RgbColorPicker color={pictureColors.main} onChange={(newColor) => { setPictureColors({ ...pictureColors, main: newColor }) }} />
-                    </label>
-                    <label className='form-label'>
-                        Secondary color
-                        <RgbColorPicker color={pictureColors.secondary} onChange={(newColor) => { setPictureColors({ ...pictureColors, secondary: newColor }) }} />
                     </label>
                 </div>
                 <button type="submit" className={`btn btn-lg ${formState}`}>Submit</button>
