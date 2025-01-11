@@ -70,7 +70,6 @@ export default class WaterScreenController implements Controller {
         this.webPictureService.getWebPicture()
             .then((webPicture) => {
                 if (webPicture) {
-                    webPicture.data = webPicture.data?.map((value) => { return typeof value === "string" ? BigInt(value) : BigInt(0); });
                     response.status(200);
                     response.setHeader('Content-Type', 'application/json');
                     response.send(JSONbig.stringify(webPicture));
