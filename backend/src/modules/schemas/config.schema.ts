@@ -41,18 +41,8 @@ const ConfigSchema = new Schema<ConfigModelType>({
     },
     workRange: {
         type: {
-            from: {
-                type: Number,
-                min: 0,
-                max: 24,
-                required: true
-            },
-            to: {
-                type: Number,
-                min: 0,
-                max: 24,
-                required: true
-            }
+            from: { type: Number, min: 0, max: 24, required: true },
+            to: { type: Number, min: 0, max: 24, required: true }
         },
         validate: {
             validator: function (workRange: Range) {
@@ -61,7 +51,13 @@ const ConfigSchema = new Schema<ConfigModelType>({
             message: () => "'from' must be smaller than 'to'"
         },
         required: true
+    },
+    lastUpdate: {
+        type: Date,
+        default: Date.now,
+        required: false
     }
+
 })
 
 export const ConfigModel = model("Config", ConfigSchema);

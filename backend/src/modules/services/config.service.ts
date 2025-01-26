@@ -8,7 +8,7 @@ export default class ConfigService {
     }
 
     public getWaterscreenConfig = async (): Promise<ConfigModelType | undefined> => {
-        const config = await ConfigModel.findOne({}).select('-_id -__v -mailList -workRange._id');
+        const config = await ConfigModel.findOne({}).select('-_id -__v -mailList -workRange._id -lastUpdate');
         if (!config) {
             return undefined;
         }
@@ -22,6 +22,9 @@ export default class ConfigService {
 
     public updateConfig = async (config: ConfigModelType) => {
         config.wasRead = false;
+        if (config.lastUpdate)
+            config.lastUpdate = new Date();
+
 
         return ConfigModel.replaceOne({}, config).setOptions({ upsert: true, runValidators: true });
     }

@@ -44,7 +44,7 @@ export default function createPictureSchema(maxSize: number) {
                     message: () => "Picture data must be composed of numbers!",
                 },
                 {
-                    validator: function (this: any, data: BigInt[]) {
+                    validator: function (this: any, data: String[]) {
                         return data.length === this.get('size');
                     },
                     message: () => "Picutre size doesn't match the data array length!",

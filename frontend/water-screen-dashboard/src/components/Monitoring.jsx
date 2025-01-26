@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 
+
 import { useAuth } from '@/context/AuthContext';
+import MonitoringTable from './MonitoringTable.jsx';
 
 import appConfig from '../config.js'
 import '../styles/App.css';
@@ -62,8 +64,9 @@ function Monitoring() {
         <div className="admin_content">
             <h2>Current State</h2>
             <p>Fluid Level: <span style={{ fontWeight: 'bold', color: state.fluidLevel == 0 ? "green" : "red" }}>{fluidLevelNames[state.fluidLevel]}</span></p>
-            <p>Is running: <span style={{ fontWeight: 'bold' }}>{state.isPresenting ? 'Yes' : 'No'}</span></p>
+            <p>Presenting: <span style={{ fontWeight: 'bold' }}>{state.isPresenting ? 'Yes' : 'No'}</span></p>
             <p>Mode: <span style={{ fontWeight: 'bold' }}>{modeNames[state.mode]}</span></p>
+            <MonitoringTable count={100} />
         </div>
     );
 }

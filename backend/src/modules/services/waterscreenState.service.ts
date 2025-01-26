@@ -19,6 +19,10 @@ export default class WaterscreenStateService {
         return StateModel.create([state], { validateBeforeSave: true });
     }
 
+    public async getManyStates(n: number) {
+        return await StateModel.find({}).sort('-date').limit(n).select('-_id -__v');
+    }
+
     private async getState(order: StateOrder) {
         const data = (await StateModel.find({}).sort('-date').limit(2)).at(order);
 

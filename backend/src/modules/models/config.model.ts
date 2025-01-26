@@ -12,4 +12,5 @@ export type ConfigModelType = {
     idleTime: number,
     mailList?: string[],
     workRange: Range,
+    lastUpdate?: Date
 }

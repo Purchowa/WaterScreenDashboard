@@ -1,4 +1,5 @@
 import express, { Response, Request } from 'express';
+import { query, validationResult } from 'express-validator'
 import { Error } from 'mongoose'
 
 import Controller from "../interfaces/controller.interface";
@@ -37,6 +38,7 @@ export default class DashboardController implements Controller {
         this.router.get(`${this.path}/state`, authJwt, this.getState);
         this.router.post(`${this.path}/webPicture`, authJwt, this.updateWebPicture);
         this.router.get(`${this.path}/webPicture`, authJwt, this.getWebPicture);
+        this.router.get(`${this.path}/states`, [query('limit').isInt({ min: 1, max: 100 })], authJwt, this.getManyStates);
     }
 
     private updateConfig = (request: Request, response: Response) => {
@@ -101,6 +103,23 @@ export default class DashboardController implements Controller {
                     response.status(200).json(webPicture);
                 else
                     response.status(404).json({ error: "WebPicture not found" });
+            })
+            .catch((error) => { console.error(error); response.status(500).json({ error: "Internal error" }); });
+    }
+
+    private getManyStates = (request: Request, response: Response) => {
+        const queryErrors = validationResult(request);
+        if (!queryErrors.isEmpty()) {
+            return response.status(400).json({ error: queryErrors.array() });
+        }
+
+        const limit = parseInt(request.query.limit as string, 10);
+        this.stateService.getManyStates(limit)
+            .then((states) => {
+                if (states)
+                    response.status(200).json(states);
+                else
+                    response.status(404).json({ error: `Number of ${limit} states not found` });
             })
             .catch((error) => { console.error(error); response.status(500).json({ error: "Internal error" }); });
     }

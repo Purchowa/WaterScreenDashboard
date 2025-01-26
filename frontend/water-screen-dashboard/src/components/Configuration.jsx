@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
 
 import appConfig from '../config.js'
+import { formatUTCDateToLocal } from './common/dateUtils.js';
 import '../styles/App.css';
 
 function Configuration() {
@@ -16,7 +17,8 @@ function Configuration() {
         workRange: {
             from: 0,
             to: 0,
-        }
+        },
+        lastUpdate: ""
     });
 
     const { isAuthenticated, logout } = useAuth();
@@ -85,6 +87,7 @@ function Configuration() {
     return (
         <div className="admin_content">
             <h2>Configuration</h2>
+            <h5 style={{ color: 'gray' }}>Last update: {formatUTCDateToLocal(config.lastUpdate)}</h5>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label className="form-label">
