@@ -13,6 +13,7 @@ function AdminPanel() {
         username: "",
         password: ""
     });
+    const [loginError, setLoginError] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -32,6 +33,7 @@ function AdminPanel() {
             })
             .catch(error => {
                 console.error("There was an error logging in!", error);
+                setLoginError(true);
             });
     };
 
@@ -63,7 +65,7 @@ function AdminPanel() {
                             />
                         </label>
                     </div>
-                    <button type="submit" className="submit-button">Login</button>
+                    <button type="submit" className={loginError ? "error-button" : "submit-button"}>Login</button>
                 </form>
             </div>
         );
