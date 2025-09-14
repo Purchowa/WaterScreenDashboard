@@ -1,0 +1,8 @@
+node_modules/
+dist/
+build/
+.vite/
+.git/
+.env
+Dockerfile
+docker-compose.yml

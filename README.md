@@ -18,3 +18,11 @@ The **Water Screen Dashboard** is a web-based application designed to manage and
   - Supports configuration of presentation modes and schedules.
 
 ---
+
+### Handy commands on Docker
+
+- `docker logs -f <name>` - logs from specific app.
+- `docker stats` - resource consumption.
+- `docker ps -a` - container status.
+- `docker-compose up --detach` - run containers in detached mode.
+- `docker-compose up --detach --build` - force image rebuild.
